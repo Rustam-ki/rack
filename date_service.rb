@@ -9,13 +9,14 @@ class DateService
     'second' => '%S'
   }.freeze
 
-  def initialize(formats)
-    format_params(formats)
+  def initialize(format_params)
+    @format_params = format_params
+    @formats = []
+    @miss_format = []
   end
 
   def formatted_time
-    formats = @formats.map { |data| FORMATS[data] }.join('-')
-    Time.now.strftime(formats)
+    Time.now.strftime(@options.join('-'))
   end
 
   def valid?
@@ -28,8 +29,14 @@ class DateService
 
   private
 
-  def format_params(params)
-    params = params.split(',')
-    @formats, @miss_format = params.partition { |param| FORMATS.key?(param) }
+  def format_params
+    params = @format_params.split(',')
+    params.each do |param|
+      if FORMATS.key?(param.to_sym)
+        @formats << FORMATS[param.to_sym]
+      else
+        @miss_format << param
+      end
+    end
   end
 end
